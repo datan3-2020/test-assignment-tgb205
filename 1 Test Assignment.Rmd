@@ -1,28 +1,109 @@
+title: "Test statistical assignment"
+author: "Toby Baines"
+date: "24 January 2020"
+output: github_document
 ---
-title: "1 Test Assignment"
-output: html_document
----
-
-```{r setup, include=FALSE}
+  
+  ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+## Introduction
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+Please change the author and date fields above as appropriate. Do not change the output format. Once you have completed the assignment you want to knit your document into a markdown document in the "github_document" format and then commit both the .Rmd and .md files (and all the associated files with graphs) to your private assignment repository on Github.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+## Reading data (40 points)
 
-```{r cars}
-summary(cars)
+First, we need to read the data into R. For this assignment, I ask you to use data from the youth self-completion questionnaire (completed by children between 10 and 15 years old) from Wave 9 of the Understanding Society. It is one of the files you have downloaded as part of SN6614 from the UK Data Service. To help you find and understand this file you will need the following documents:
+  
+1) The Understanding Society Waves 1-9 User Guide: https://www.understandingsociety.ac.uk/sites/default/files/downloads/documentation/mainstage/user-guides/mainstage-user-guide.pdf
+2) The youth self-completion questionnaire from Wave 9: https://www.understandingsociety.ac.uk/sites/default/files/downloads/documentation/mainstage/questionnaire/wave-9/w9-gb-youth-self-completion-questionnaire.pdf
+3) The codebook for the file: 
+
+# note: search within finder and file for correct part of data
+# to load in right part look at file info and CP the name 
+
+```{r}
+
+library(tidyverse)
+# This attaches the tidyverse package. If you get an error here you need to install the package first. 
+
+Data <- read_tsv("/Users/user/Desktop/UKDA-6614-tab/tab/ukhls_w9/i_youth.tab")
+
+# You need to add between the quotation marks a full path to the required file on your computer.
 ```
 
-## Including Plots
+## note: right data is loaded
 
-You can also embed plots, for example:
+## Tabulate variables (10 points)
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+In the survey children were asked the following question: "Do you have a social media profile or account on any sites or apps?". In this assignment we want to explore how the probability of having an account on social media depends on children's age and gender.
+
+Tabulate three variables: children's gender, age (please use derived variables) and having an account on social media.
+
+# social media yes or not = ypsocweb
+# age = i_age_dv
+# gender = i_ypsex
+
+```{r}
+# add your code here
+
+table(Data$i_ypsocweb)
+table(Data$i_sex_dv)
+table(Data$i_age_dv)
+```
+## Recode variables (10 points)
+
+We want to create a new binary variable for having an account on social media so that 1 means "yes", 0 means "no", and all missing values are coded as NA. We also want to recode gender into a new variable with the values "male" and "female" (this can be a character vector or a factor).
+
+```{r}
+# add your code here
+
+# binary variable sm for account or no account
+Data$sm <- NA
+Data$sm[Data$i_ypsocweb == 1] <- 1
+Data$sm[Data$i_ypsocweb == 2] <- 0
+table(Data$sm)
+
+# binary variable gen for male v female
+Data$gen <- NA
+Data$gen[Data$i_sex_dv == 1] <- "male"
+Data$gen[Data$i_sex_dv == 2] <- "female"
+table(Data$gen)
+
+## Calculate means (10 points)
+mean(Data$sm)
+mean(Data$i_age_dv)
+mean(Data$i_sex_dv)
+
+# Produce code that calculates probabilities of having an account on social media (i.e. the mean of your new binary variable produced in the previous problem) by age and gender. 
+```
+```{r}
+# add your code here
+
+agesm <- tapply(Data$sm, Data$i_age_dv, mean, na.rm = TRUE)
+sexsm <- tapply(Data$sm, Data$gen, mean, na.rm = TRUE)
+
+
+## Write short interpretation (10 points)
+
+# Write two or three sentences interpreting your findings above.
+
+# The probability of having an account on social media with regards to age seems to show that the older you are the more likely you are to have a social media account. This is proven with 96% of of 15 year olds have some form of social media. 10 year olds in comparison are only 49% likely to have it.
+# With regards to gender, females are more likely by 6% to have social media.
+
+
+## Visualise results (20 points)
+
+# Create a statistical graph (only one, but it can be faceted) illustrating your results (i.e. showing how the probability of having an account on social media changes with age and gender). Which type of statistical graph would be most appropriate for this?
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r}
+# add your code here
+
+barplot(agesm,
+        main = "Probability of social media according to age")
+
+barplot(sexsm,
+        ylim = c(0,1),
+        main = "Probability of social media according to sex")
