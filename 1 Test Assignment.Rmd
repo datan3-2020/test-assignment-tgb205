@@ -1,4 +1,9 @@
-title: "Test statistical assignment"
+---
+title: "Test Assignment 1"
+output: html_document
+---
+
+title: "Test Assignment 1"
 author: "Toby Baines"
 date: "24 January 2020"
 output: github_document
